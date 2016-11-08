@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+		
+		<title>PouchDB App</title>
+		
+		<style type="text/css">
+			textarea {
+				resize: vertical;	/* Can resize the textarea vertically */
+			}
+		</style>
+	</head>
+	
+	<body>
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#">PouchBD App</a>
+				</div>
+			</div>
+		</nav>
+		
+		<!-- Form for adding messages to the database -->
+		<div class="container">
+			<form>
+				<div class="form-group">
+					<label for="messageInput">Enter a message here:</label>
+					<textarea id="messageInput" class="form-control" type="text"></textarea>
+				</div>
+				
+				<button id="addBtn" class="btn btn-default">
+					+ Add to database
+				</button>
+			</form>
+			
+			<h3>List of messages in the PouchDB database</h3>
+		
+			<!-- Div to display all messages in the database -->
+			<ul id="messages" class="list-group"></ul>
+		</div>
+		
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		
+		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+		
+		<!-- PouchDB -->
+		<script src="https://cdn.jsdelivr.net/pouchdb/5.4.5/pouchdb.min.js"></script>
+		
+		<script type="text/javascript">
+			// Create a database called "messages" and open it if it already exists
+			var db = new PouchDB("http://127.0.0.1:5984/messages");
+			
+			console.log(db.info());
+			
+			// Add the new message to the database when the add button is clicked
+			$("#addBtn").click(function() {
+				db.post({
+					message: $("#messageInput").val()
+				});
+			});
+			
+			db.allDocs({
+				include_docs: true
+			}).then(function(response) {
+				// Handle response
+				console.log(response);
+				
+				// Loop through each row in the response
+				$.each(response.rows, function(index, value) {
+					console.log(index + ": " + value.doc.message);
+					
+					// Add each message to the the list
+					$("#messages").append("<li class='list-group-item'>" + value.doc.message + "</li>");
+				})
+			}).catch(function (err) {
+				console.log(err);
+			});
+		</script>
+	</body>
+</html>
